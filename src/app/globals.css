@@ -89,6 +89,18 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-slate-900 text-foreground;
   }
 }
+
+
+  /* ======================== Auth Pages */
+  .auth-page {
+    @apply flex min-h-screen w-full flex-col items-center justify-center gap-10;
+  }
+
+
+    /* ======================== Home Page */
+    .home-container {
+      @apply relative flex min-h-screen w-full flex-col items-center gap-5 sm:gap-10;
+    }
