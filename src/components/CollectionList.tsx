@@ -19,7 +19,7 @@ async function CollectionList({ user }: CollectionListProps) {
         <div className="collection-list">
             {collections.length === 0 ? (
                 <div className="empty-state flex flex-col items-center justify-center">
-                    <p className="text-lg text-gray-500">You don't have any collections yet.</p>
+                    <p className="text-lg text-gray-500">You don&lsquo;t have any collections yet.</p>
                     <CreateCollectionButton />
                 </div>
             ) : (

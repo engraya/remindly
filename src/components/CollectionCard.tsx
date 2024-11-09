@@ -111,7 +111,7 @@ function CollectionCard({ collection }: CollectionCardProps) {
               onClick={() => setShowCreateModal(true)}
               className="flex items-center justify-center gap-1 p-8 py-12 rounded-none"
             >
-              <p className="text-sm text-gray-500">You don't have any tasks yet.</p>
+              <p className="text-sm text-gray-500">You don&lsquo;t have any tasks yet.</p>
               <span className={cn("text-sm bg-clip-text text-transparent", CollectionColors[collection.color as CollectionColor])}>Create one</span>
             </Button>
           ) : (
