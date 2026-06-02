@@ -1,26 +1,22 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import Footer from "@/components/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
-import Header from "@/components/Header";
-import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "next-themes";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { Toaster } from "@/components/ui/sonner";
 
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Remindly",
-  description: "Organize, prioritize, and conquer your to-dos with ease, whether it’s work, personal tasks, or long-term goals",
+  description:
+    "Organize, prioritize, and conquer your to-dos with ease, whether it’s work, personal tasks, or long-term goals",
 };
 
 export default function RootLayout({
@@ -30,17 +26,18 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${inter.variable} font-sans flex min-h-screen flex-col antialiased`}
         >
-        <Header/>
-        {children}
-        <Toaster />
-        <Footer/>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <Toaster />
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
-
   );
 }
