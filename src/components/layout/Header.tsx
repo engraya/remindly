@@ -3,15 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, Check } from "lucide-react";
 import { HeaderAuth } from "@/components/layout/HeaderAuth";
 import { ModeToggle } from "@/components/ThemeToggler";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -20,39 +16,56 @@ const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
 ];
 
+function Logo({ compact = false }: { compact?: boolean }) {
+  return (
+    <Link href="/" className="flex items-center gap-2.5">
+      {/* Mark */}
+      <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-violet-600 shadow-md shadow-primary/30">
+        <Check className="h-4 w-4 text-white" strokeWidth={3} aria-hidden />
+        {/* Notch dot */}
+        <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5 items-center justify-center rounded-full border-2 border-background bg-emerald-400" />
+      </div>
+      {!compact && (
+        <span className="text-lg font-extrabold tracking-tight text-foreground">
+          Remindly
+        </span>
+      )}
+    </Link>
+  );
+}
+
 export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
-      <div className="container mx-auto flex items-center justify-between px-6 py-3">
-        <Link href="/" className="text-xl font-extrabold">
-          <span className="bg-gradient-to-r from-violet-500 to-indigo-400 bg-clip-text text-transparent">
-            Remindly
-          </span>
-        </Link>
+    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 lg:px-8">
+        <Logo />
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               prefetch={href === "/dashboard" ? false : undefined}
               className={cn(
-                "text-sm font-medium transition-colors duration-150 hover:text-primary",
+                "relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-150",
                 pathname === href
-                  ? "text-primary font-semibold"
-                  : "text-muted-foreground"
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               {label}
+              {pathname === href && (
+                <span className="absolute inset-x-2 -bottom-px h-px rounded-full bg-primary" />
+              )}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <ModeToggle />
           <HeaderAuth />
 
@@ -68,7 +81,10 @@ export function Header() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 pt-12">
+            <SheetContent side="left" className="w-64 pt-10">
+              <div className="mb-6 px-3">
+                <Logo />
+              </div>
               <nav
                 className="flex flex-col gap-1"
                 aria-label="Mobile navigation"

@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowUpDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -28,10 +29,14 @@ export function CollectionSortSelect({
 }: CollectionSortSelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className="w-[160px] shrink-0" aria-label="Sort collections">
+      <SelectTrigger
+        className="w-auto shrink-0 gap-2 border-0 bg-transparent shadow-none focus:ring-0 data-[state=open]:ring-0"
+        aria-label="Sort collections"
+      >
+        <ArrowUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
         <SelectValue />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent align="end">
         {SORT_OPTIONS.map((opt) => (
           <SelectItem key={opt.value} value={opt.value}>
             {opt.label}

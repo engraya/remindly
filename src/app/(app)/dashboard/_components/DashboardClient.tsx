@@ -31,11 +31,11 @@ export function DashboardClient({ collections }: DashboardClientProps) {
 
   if (collections.length === 0) {
     return (
-      <div className="py-12">
+      <div className="rounded-2xl border border-border bg-card py-4 shadow-sm">
         <EmptyState
           icon={LayoutList}
           title="No collections yet"
-          description="Create your first collection to start organizing tasks."
+          description="Create your first collection to start organizing your tasks."
           action={<CreateCollectionButton />}
         />
       </div>
@@ -43,18 +43,35 @@ export function DashboardClient({ collections }: DashboardClientProps) {
   }
 
   return (
-    <div className="w-full space-y-6">
-      <div className="flex items-center gap-2">
-        <TaskSearch query={filterQuery} onQueryChange={setFilterQuery} />
-        <CollectionSortSelect value={sortKey} onValueChange={setSortKey} />
+    <div className="w-full space-y-4">
+      {/* Section header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-sm font-semibold text-foreground">
+            Collections
+          </h2>
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+            {collections.length}
+          </span>
+        </div>
         <CreateCollectionButton />
       </div>
 
+      {/* Filter toolbar */}
+      <div className="flex items-center rounded-xl border border-border bg-card shadow-sm">
+        <TaskSearch query={filterQuery} onQueryChange={setFilterQuery} />
+        <div className="h-5 w-px shrink-0 bg-border" />
+        <CollectionSortSelect value={sortKey} onValueChange={setSortKey} />
+      </div>
+
+      {/* Collection grid */}
       {visibleCollections.length === 0 ? (
-        <EmptyState
-          title="No results"
-          description={`No tasks or collections match "${filterQuery}"`}
-        />
+        <div className="rounded-2xl border border-border bg-card">
+          <EmptyState
+            title="No results"
+            description={`No tasks or collections match "${filterQuery}"`}
+          />
+        </div>
       ) : (
         <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
           {visibleCollections.map((collection) => (

@@ -13,11 +13,8 @@ type TaskSearchProps = {
 export function TaskSearch({ query, onQueryChange }: TaskSearchProps) {
   const [localValue, setLocalValue] = useState(query);
 
-  // Debounce: propagate to parent 200ms after the user stops typing
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onQueryChange(localValue);
-    }, 200);
+    const timer = setTimeout(() => onQueryChange(localValue), 200);
     return () => clearTimeout(timer);
   }, [localValue, onQueryChange]);
 
@@ -29,21 +26,21 @@ export function TaskSearch({ query, onQueryChange }: TaskSearchProps) {
   return (
     <div className="relative flex-1">
       <Search
-        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50"
         aria-hidden
       />
       <Input
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        placeholder="Search tasks or collections…"
-        className="pl-9 pr-9"
+        placeholder="Search collections or tasks…"
+        className="h-9 border-0 bg-transparent pl-8 pr-8 text-sm shadow-none focus-visible:border-0 focus-visible:ring-0"
         aria-label="Search tasks"
       />
       {localValue && (
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
+          className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded text-muted-foreground/60 hover:text-foreground"
           onClick={handleClear}
           aria-label="Clear search"
         >

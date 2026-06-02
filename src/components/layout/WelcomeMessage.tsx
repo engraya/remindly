@@ -10,22 +10,36 @@ function getGreeting(): string {
   return "Good evening";
 }
 
+function getFormattedDate(): string {
+  return new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 type WelcomeMessageProps = {
   user: AuthUser;
 };
 
 export function WelcomeMessage({ user }: WelcomeMessageProps) {
+  const greeting = getGreeting();
+  const firstName = user.firstName ?? "there";
+
   return (
-    <div className="flex flex-col gap-4 pb-6 md:flex-row md:items-center md:justify-between">
-      <UserProfile user={user} />
-      <div className="flex flex-col gap-1 md:text-right">
-        <p className="text-lg font-semibold text-foreground">
-          {getGreeting()}, {user.firstName ?? "there"} 👋
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          {getFormattedDate()}
         </p>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="mt-1 text-2xl font-bold text-foreground">
+          {greeting}, {firstName} 👋
+        </h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">
           Here&apos;s an overview of your tasks today.
         </p>
       </div>
+      <UserProfile user={user} />
     </div>
   );
 }
