@@ -15,7 +15,6 @@ export type ParsedNaturalLanguageTask = z.infer<typeof aiTaskSchema>;
 export async function parseNaturalLanguageTask(
   input: string
 ): Promise<ParsedNaturalLanguageTask> {
-  // Strip control characters and normalize before validation
   const sanitized = input.replace(/[\x00-\x1F\x7F]/g, "").trim();
 
   if (sanitized.length < 8) {
@@ -28,40 +27,39 @@ export async function parseNaturalLanguageTask(
     );
   }
 
-  const apiKey = env.OPENAI_API_KEY;
+  const apiKey = env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new AppError(
       "INTERNAL",
-      "AI features require OPENAI_API_KEY to be configured"
+      "AI features require GEMINI_API_KEY to be configured"
     );
   }
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: PARSE_TASK_SYSTEM_PROMPT },
-        { role: "user", content: sanitized },
-      ],
-      temperature: 0.2,
-    }),
-  });
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: PARSE_TASK_SYSTEM_PROMPT }] },
+        contents: [{ parts: [{ text: sanitized }] }],
+        generationConfig: {
+          temperature: 0.2,
+          responseMimeType: "application/json",
+        },
+      }),
+    }
+  );
 
   if (!response.ok) {
     throw new AppError("INTERNAL", "Failed to parse task with AI");
   }
 
   const data = (await response.json()) as {
-    choices?: { message?: { content?: string } }[];
+    candidates?: { content?: { parts?: { text?: string }[] } }[];
   };
 
-  const raw = data.choices?.[0]?.message?.content;
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!raw) {
     throw new AppError("INTERNAL", "Empty AI response");
   }

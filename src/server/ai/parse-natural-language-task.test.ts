@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-// Provide the OPENAI_API_KEY so env validation passes in tests
 vi.mock("@/lib/env", () => ({
   env: {
-    OPENAI_API_KEY: "sk-test-key",
+    GEMINI_API_KEY: "test-gemini-key",
     DATABASE_URL: "postgresql://test:test@localhost/test",
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test",
     CLERK_SECRET_KEY: "sk_test",
@@ -13,10 +12,10 @@ vi.mock("@/lib/env", () => ({
 
 import { parseNaturalLanguageTask } from "./parse-natural-language-task";
 
-function makeOpenAiResponse(content: string) {
+function makeGeminiResponse(content: string) {
   return new Response(
     JSON.stringify({
-      choices: [{ message: { content } }],
+      candidates: [{ content: { parts: [{ text: content }] } }],
     }),
     { status: 200, headers: { "Content-Type": "application/json" } }
   );
@@ -46,10 +45,10 @@ describe("parseNaturalLanguageTask — input validation", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("strips control characters before sending to OpenAI", async () => {
+  it("strips control characters before sending to Gemini", async () => {
     const mockFetch = vi.mocked(fetch);
     mockFetch.mockResolvedValue(
-      makeOpenAiResponse(
+      makeGeminiResponse(
         JSON.stringify({ content: "Call the dentist", expiresAt: null })
       )
     );
@@ -57,12 +56,12 @@ describe("parseNaturalLanguageTask — input validation", () => {
     await parseNaturalLanguageTask("Call\x00 the\x1F dentist tomorrow");
 
     const body = JSON.parse((mockFetch.mock.calls[0]?.[1] as RequestInit)?.body as string);
-    expect(body.messages[1].content).toBe("Call the dentist tomorrow");
+    expect(body.contents[0].parts[0].text).toBe("Call the dentist tomorrow");
   });
 });
 
 describe("parseNaturalLanguageTask — API error handling", () => {
-  it("throws INTERNAL when OpenAI returns non-ok status", async () => {
+  it("throws INTERNAL when Gemini returns non-ok status", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response("Unauthorized", { status: 401 })
     );
@@ -72,9 +71,9 @@ describe("parseNaturalLanguageTask — API error handling", () => {
     ).rejects.toMatchObject({ code: "INTERNAL" });
   });
 
-  it("throws INTERNAL when AI returns empty choices", async () => {
+  it("throws INTERNAL when AI returns empty candidates", async () => {
     vi.mocked(fetch).mockResolvedValue(
-      new Response(JSON.stringify({ choices: [] }), { status: 200 })
+      new Response(JSON.stringify({ candidates: [] }), { status: 200 })
     );
 
     await expect(
@@ -83,7 +82,7 @@ describe("parseNaturalLanguageTask — API error handling", () => {
   });
 
   it("throws INTERNAL when AI returns malformed JSON", async () => {
-    vi.mocked(fetch).mockResolvedValue(makeOpenAiResponse("not valid json {{{"));
+    vi.mocked(fetch).mockResolvedValue(makeGeminiResponse("not valid json {{{"));
 
     await expect(
       parseNaturalLanguageTask("Remind me to call dentist")
@@ -92,7 +91,7 @@ describe("parseNaturalLanguageTask — API error handling", () => {
 
   it("throws VALIDATION when AI returns JSON without required fields", async () => {
     vi.mocked(fetch).mockResolvedValue(
-      makeOpenAiResponse(JSON.stringify({ someField: "unexpected" }))
+      makeGeminiResponse(JSON.stringify({ someField: "unexpected" }))
     );
 
     await expect(
@@ -104,7 +103,7 @@ describe("parseNaturalLanguageTask — API error handling", () => {
 describe("parseNaturalLanguageTask — success cases", () => {
   it("returns parsed task with content and null expiresAt", async () => {
     vi.mocked(fetch).mockResolvedValue(
-      makeOpenAiResponse(
+      makeGeminiResponse(
         JSON.stringify({ content: "Call the dentist", expiresAt: null })
       )
     );
@@ -118,7 +117,7 @@ describe("parseNaturalLanguageTask — success cases", () => {
 
   it("returns parsed task with ISO 8601 expiresAt", async () => {
     vi.mocked(fetch).mockResolvedValue(
-      makeOpenAiResponse(
+      makeGeminiResponse(
         JSON.stringify({
           content: "Submit tax return",
           expiresAt: "2025-04-15T00:00:00.000Z",
