@@ -9,8 +9,22 @@ export async function createTaskAction(input: unknown) {
   return taskService.create(input);
 }
 
+export async function updateTaskAction(input: unknown) {
+  return taskService.update(input);
+}
+
+export async function deleteTaskAction(taskId: unknown) {
+  return taskService.delete(taskId);
+}
+
 export async function setTaskToDoneAction(taskId: unknown) {
   return taskService.markDone(taskId);
+}
+
+export async function parseNaturalLanguageTaskAction(naturalLanguage: string) {
+  const user = await requireUser();
+  await assertAiRateLimit(user.id);
+  return parseNaturalLanguageTask(naturalLanguage);
 }
 
 export async function createTaskFromNaturalLanguageAction(

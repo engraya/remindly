@@ -31,4 +31,28 @@ export const taskRepository = {
 
     return updated.length > 0;
   },
+
+  async delete(taskId: number, userId: string): Promise<boolean> {
+    const deleted = await db
+      .delete(tasks)
+      .where(and(eq(tasks.id, taskId), eq(tasks.userId, userId)))
+      .returning({ id: tasks.id });
+
+    return deleted.length > 0;
+  },
+
+  async update(data: {
+    taskId: number;
+    userId: string;
+    content: string;
+    expireAt?: Date | null;
+  }): Promise<boolean> {
+    const updated = await db
+      .update(tasks)
+      .set({ content: data.content, expireAt: data.expireAt ?? null, updatedAt: new Date() })
+      .where(and(eq(tasks.id, data.taskId), eq(tasks.userId, data.userId)))
+      .returning({ id: tasks.id });
+
+    return updated.length > 0;
+  },
 };

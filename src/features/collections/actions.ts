@@ -10,6 +10,10 @@ export async function createCollectionAction(input: unknown) {
   return collectionService.create(input);
 }
 
+export async function updateCollectionAction(input: unknown) {
+  return collectionService.update(input);
+}
+
 export async function deleteCollectionAction(collectionId: unknown) {
   return collectionService.delete(collectionId);
 }

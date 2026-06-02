@@ -10,6 +10,7 @@ import {
   LoaderCircle,
   Sparkles,
   Plus,
+  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -54,6 +55,14 @@ const NaturalLanguageTaskDialog = dynamic(
   { loading: () => <Loader className="py-4" />, ssr: false }
 );
 
+const EditCollectionDialog = dynamic(
+  () =>
+    import("@/features/collections/components/EditCollectionDialog").then(
+      (m) => m.EditCollectionDialog
+    ),
+  { loading: () => <Loader className="py-4" />, ssr: false }
+);
+
 type CollectionCardProps = {
   collection: Collection;
   filterQuery?: string;
@@ -67,6 +76,7 @@ export function CollectionCard({
   const [isDeleting, startDeleteTransition] = useTransition();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const tasks = filterQuery
     ? collection.tasks.filter((t) =>
@@ -109,6 +119,13 @@ export function CollectionCard({
         <NaturalLanguageTaskDialog
           open={showAiModal}
           onOpenChange={setShowAiModal}
+          collection={collection}
+        />
+      )}
+      {showEditModal && (
+        <EditCollectionDialog
+          open={showEditModal}
+          onOpenChange={setShowEditModal}
           collection={collection}
         />
       )}
@@ -237,6 +254,15 @@ export function CollectionCard({
                   className="h-8 w-8 text-muted-foreground transition-colors hover:text-primary"
                 >
                   <Sparkles className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setShowEditModal(true)}
+                  aria-label="Edit collection"
+                  className="h-8 w-8 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <Pencil className="h-4 w-4" />
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>

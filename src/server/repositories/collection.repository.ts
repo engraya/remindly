@@ -62,4 +62,21 @@ export const collectionRepository = {
 
     return row ?? null;
   },
+
+  async update(data: {
+    collectionId: number;
+    userId: string;
+    name: string;
+    color: string;
+  }): Promise<boolean> {
+    const updated = await db
+      .update(collections)
+      .set({ name: data.name, color: data.color, updatedAt: new Date() })
+      .where(
+        and(eq(collections.id, data.collectionId), eq(collections.userId, data.userId))
+      )
+      .returning({ id: collections.id });
+
+    return updated.length > 0;
+  },
 };

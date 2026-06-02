@@ -7,10 +7,25 @@ import {
   createCollectionSchema,
   type CreateCollectionInput,
 } from "@/features/collections/schemas/create-collection.schema";
+import {
+  updateCollectionSchema,
+  type UpdateCollectionInput,
+} from "@/features/collections/schemas/update-collection.schema";
 import type { CollectionWithTasks } from "@/server/db/schema";
 
 function parseCollectionInput(input: unknown): CreateCollectionInput {
   const parsed = createCollectionSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new AppError(
+      "VALIDATION",
+      parsed.error.errors[0]?.message ?? "Invalid collection data"
+    );
+  }
+  return parsed.data;
+}
+
+function parseUpdateCollectionInput(input: unknown): UpdateCollectionInput {
+  const parsed = updateCollectionSchema.safeParse(input);
   if (!parsed.success) {
     throw new AppError(
       "VALIDATION",
@@ -49,6 +64,25 @@ export const collectionService = {
       color: data.color,
       userId: user.id,
     });
+
+    revalidatePath("/dashboard", "page");
+  },
+
+  async update(input: unknown): Promise<void> {
+    const user = await requireUser();
+    await assertMutationRateLimit(user.id);
+
+    const data = parseUpdateCollectionInput(input);
+    const updated = await collectionRepository.update({
+      collectionId: data.collectionId,
+      userId: user.id,
+      name: data.name,
+      color: data.color,
+    });
+
+    if (!updated) {
+      throw new AppError("NOT_FOUND", "Collection not found");
+    }
 
     revalidatePath("/dashboard", "page");
   },
